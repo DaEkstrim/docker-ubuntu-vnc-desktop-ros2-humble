@@ -66,7 +66,8 @@ COPY rootfs/usr/local/lib/web/backend/requirements.txt /tmp/
 RUN apt-get update \
     && dpkg-query -W -f='${Package}\n' > /tmp/a.txt \
     && apt-get install -y python3-pip python3-dev build-essential \
-	&& pip3 install setuptools wheel && pip3 install -r /tmp/requirements.txt \
+	&& pip3 install setuptools wheel 
+    && pip3 install -r /tmp/requirements.txt \
     && ln -s /usr/bin/python3 /usr/local/bin/python \
     && dpkg-query -W -f='${Package}\n' > /tmp/b.txt \
     && apt-get remove -y `diff --changed-group-format='%>' --unchanged-group-format='' /tmp/a.txt /tmp/b.txt | xargs` \
@@ -79,7 +80,7 @@ RUN apt-get update \
 ################################################################################
 # builder
 ################################################################################
-FROM ubuntu:20.04 as builder
+FROM ubuntu:22.04 as builder
 
 
 RUN sed -i 's#http://archive.ubuntu.com/ubuntu/#mirror://mirrors.ubuntu.com/mirrors.txt#' /etc/apt/sources.list;
@@ -113,7 +114,7 @@ RUN cd /src/web/dist/static/novnc && patch -p0 < /src/web/novnc-armhf-1.patch
 # merge
 ################################################################################
 FROM system as basesystem
-LABEL maintainer="fcwu.tw@gmail.com"
+LABEL maintainer="daekstrim@github.com"
 
 COPY --from=builder /src/web/dist/ /usr/local/lib/web/frontend/
 COPY rootfs /
